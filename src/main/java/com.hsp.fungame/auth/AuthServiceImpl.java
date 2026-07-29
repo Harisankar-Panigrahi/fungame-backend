@@ -5,7 +5,10 @@ import com.hsp.fungame.player.PlayerRepository;
 import com.hsp.fungame.player.Role;
 import com.hsp.fungame.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private final AuthenticationManager authenticationManager;
     private final PlayerRepository playerRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -47,6 +51,22 @@ public class AuthServiceImpl implements AuthService {
     }
     @Override
     public AuthResponse login(LoginRequest request) {
-        return null;
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        Player player = playerRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("Player not found"));
+
+        String jwt = jwtService.generateToken(player);
+
+        return AuthResponse.builder()
+                .token(jwt)
+                .build();
     }
 }
