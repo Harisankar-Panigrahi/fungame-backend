@@ -1,6 +1,7 @@
 package com.hsp.fungame.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,4 +24,5 @@ public class AuthController {
 
         return authService.login(request);
     }
+
 }
