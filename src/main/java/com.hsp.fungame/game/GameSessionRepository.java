@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface GameSessionRepository extends JpaRepository<GameSession, Long> {
     Optional<GameSession> findByRoom(GameRoom room);
+    boolean existsByRoom(GameRoom room);
 }
