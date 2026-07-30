@@ -3,6 +3,7 @@ package com.hsp.fungame.room;
 import com.hsp.fungame.player.Player;
 import com.hsp.fungame.player.PlayerRepository;
 import com.hsp.fungame.room.dto.CreateRoomResponse;
+import com.hsp.fungame.room.dto.JoinRoomResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,41 @@ public class GameRoomServiceImpl implements GameRoomService{
         return CreateRoomResponse.builder()
                 .roomCode(room.getRoomCode())
                 .hostUsername(host.getUsername())
+                .status(room.getStatus())
+                .build();
+    }
+
+    @Override
+    public JoinRoomResponse joinRoom(String roomCode,
+                                     Authentication authentication) {
+
+        GameRoom room = gameRoomRepository.findByRoomCode(roomCode)
+                .orElseThrow(() ->
+                        new RuntimeException("Room not found"));
+
+        if (room.getGuest() != null) {
+            throw new RuntimeException("Room is already full");
+        }
+
+        String email = authentication.getName();
+
+        Player guest = playerRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("Player not found"));
+
+        if (room.getHost().getId().equals(guest.getId())) {
+            throw new RuntimeException("Host cannot join their own room");
+        }
+
+        room.setGuest(guest);
+        room.setStatus(RoomStatus.FULL);
+
+        gameRoomRepository.save(room);
+
+        return JoinRoomResponse.builder()
+                .roomCode(room.getRoomCode())
+                .hostUsername(room.getHost().getUsername())
+                .guestUsername(guest.getUsername())
                 .status(room.getStatus())
                 .build();
     }
