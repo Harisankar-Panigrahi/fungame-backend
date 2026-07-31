@@ -4,6 +4,8 @@ import com.hsp.fungame.player.Player;
 import com.hsp.fungame.player.PlayerRepository;
 import com.hsp.fungame.room.dto.CreateRoomResponse;
 import com.hsp.fungame.room.dto.JoinRoomResponse;
+import com.hsp.fungame.room.dto.MoveRequest;
+import com.hsp.fungame.room.dto.MoveResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -80,5 +82,10 @@ public class GameRoomServiceImpl implements GameRoomService{
                 .guestUsername(guest.getUsername())
                 .status(room.getStatus())
                 .build();
+    }
+
+    @Override
+    public MoveResponse makeMove(MoveRequest request, Authentication authentication) {
+        return null;
     }
 }
